@@ -1,7 +1,7 @@
 ﻿using ShiftsLogger.jjhh17.Data;
 using ShiftsLogger.jjhh17.Model;
 
-namespace ShiftsLogger.jjhh17.Services
+namespace ShiftsLogger.jjhh17
 {
     public interface IShiftService
     {
