@@ -25,13 +25,13 @@ namespace ShiftsLogger.jjhh17.Services
         public Shift CreateShift(Shift shift)
         {
             var savedShift = Context.Shifts.Add(shift);
-            _dbContext.SaveChanges();
+            Context.SaveChanges();
             return savedShift.Entity;
         }
 
         public string? DeleteShift(int id)
         {
-            Shift savedShift = _dbContext.Shifts.Find(id);
+            Shift savedShift = Context.Shifts.Find(id);
 
             if (savedShift == null)
             {
