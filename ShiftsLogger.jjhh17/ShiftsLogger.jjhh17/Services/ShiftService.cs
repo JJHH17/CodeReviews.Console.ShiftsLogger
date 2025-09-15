@@ -1,13 +1,24 @@
-﻿using ShiftsLogger.jjhh17.Model;
+﻿using ShiftsLogger.jjhh17.Data;
+using ShiftsLogger.jjhh17.Model;
 
 namespace ShiftsLogger.jjhh17.Services
 {
-    public interface ShiftService
+    public interface IShiftService
     {
         public List<Shift> GetAllShifts();
         public Shift? GetShiftById(int id);
         public Shift CreateShift(Shift shift);
         public Shift UpdateShift(int id, Shift updatedShift);
         public string? DeleteShift(int id);
+    }
+
+    public class ShiftService : IShiftService
+    {
+        private readonly ShiftsDbContext _dbContext;
+
+        public ShiftService(ShiftsDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
     }
 }
