@@ -42,5 +42,16 @@ namespace ShiftsLogger.jjhh17.Services
 
             return $"Shift ID: {id} deleted";
         }
+
+        public List<Shift> GetAllShifts()
+        {
+            return _dbContext.Shifts.ToList();
+        }
+
+        public Shift? GetShiftById(int id)
+        {
+            Shift savedShift = _dbContext.Shifts.Find(id);
+            return savedShift;
+        }
     }
 }
