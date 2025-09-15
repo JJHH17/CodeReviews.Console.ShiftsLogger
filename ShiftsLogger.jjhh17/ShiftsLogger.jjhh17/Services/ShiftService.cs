@@ -20,5 +20,12 @@ namespace ShiftsLogger.jjhh17.Services
         {
             _dbContext = dbContext;
         }
+
+        public Shift CreateShift(Shift shift)
+        {
+            var savedShift = _dbContext.Shifts.Add(shift);
+            _dbContext.SaveChanges();
+            return savedShift.Entity;
+        }
     }
 }
