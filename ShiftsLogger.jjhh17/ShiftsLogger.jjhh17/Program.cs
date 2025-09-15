@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ShiftsLogger.jjhh17;
 using ShiftsLogger.jjhh17.Data;
 using ShiftsLogger.jjhh17.Services;
 
