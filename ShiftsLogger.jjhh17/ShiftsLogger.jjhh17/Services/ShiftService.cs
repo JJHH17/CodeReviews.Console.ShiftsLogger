@@ -14,11 +14,11 @@ namespace ShiftsLogger.jjhh17
 
     public class ShiftService : IShiftService
     {
-        private readonly ShiftsDbContext _dbContext;
+        private readonly ShiftsDbContext context;
 
         public ShiftService(ShiftsDbContext dbContext)
         {
-            _dbContext = dbContext;
+            context = context;
         }
 
         public Shift CreateShift(Shift shift)
@@ -58,7 +58,7 @@ namespace ShiftsLogger.jjhh17
         {
             Shift savedShift = _dbContext.Shifts.Find(id);
             if (savedShift == null)
-          
+            {
                 return null;
             }
 
