@@ -1,7 +1,8 @@
 ﻿using ShiftsLogger.jjhh17.Data;
 using ShiftsLogger.jjhh17.Model;
+using Microsoft.EntityFrameworkCore;
 
-namespace ShiftsLogger.jjhh17
+namespace ShiftsLogger.jjhh17.Services
 {
     public interface IShiftService
     {
@@ -14,16 +15,16 @@ namespace ShiftsLogger.jjhh17
 
     public class ShiftService : IShiftService
     {
-        private readonly ShiftsDbContext context;
+        private readonly ShiftsDbContext Context;
 
-        public ShiftService(ShiftsDbContext dbContext)
+        public ShiftService(ShiftsDbContext context)
         {
-            context = context;
+            Context = context;
         }
 
         public Shift CreateShift(Shift shift)
         {
-            var savedShift = _dbContext.Shifts.Add(shift);
+            var savedShift = Context.Shifts.Add(shift);
             _dbContext.SaveChanges();
             return savedShift.Entity;
         }
@@ -37,33 +38,32 @@ namespace ShiftsLogger.jjhh17
                 return null;
             }
 
-            _dbContext.Shifts.Remove(savedShift);
-            _dbContext.SaveChanges();
+            Context.Shifts.Remove(savedShift);
 
             return $"Shift ID: {id} deleted";
         }
 
         public List<Shift> GetAllShifts()
         {
-            return _dbContext.Shifts.ToList();
+            return Context.Shifts.ToList();
         }
 
         public Shift? GetShiftById(int id)
         {
-            Shift savedShift = _dbContext.Shifts.Find(id);
+            Shift savedShift = Context.Shifts.Find(id);
             return savedShift;
         }
 
         public Shift UpdateShift(int id, Shift shift)
         {
-            Shift savedShift = _dbContext.Shifts.Find(id);
+            Shift savedShift = Context.Shifts.Find(id);
             if (savedShift == null)
             {
                 return null;
             }
 
-            _dbContext.Entry(savedShift).CurrentValues.SetValues(shift);
-            _dbContext.SaveChanges();
+            Context.Entry(savedShift).CurrentValues.SetValues(shift);
+            Context.SaveChanges();
 
             return savedShift;
         }
