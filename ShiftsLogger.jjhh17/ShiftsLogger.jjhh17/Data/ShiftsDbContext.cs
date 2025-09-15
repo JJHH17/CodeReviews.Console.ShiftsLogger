@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShiftsLogger.jjhh17.Model;
 
 namespace ShiftsLogger.jjhh17.Data
 {
