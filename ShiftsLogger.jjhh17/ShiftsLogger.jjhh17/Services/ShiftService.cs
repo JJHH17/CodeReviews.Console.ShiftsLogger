@@ -27,5 +27,20 @@ namespace ShiftsLogger.jjhh17.Services
             _dbContext.SaveChanges();
             return savedShift.Entity;
         }
+
+        public string? DeleteShift(int id)
+        {
+            Shift savedShift = _dbContext.Shifts.Find(id);
+
+            if (savedShift == null)
+            {
+                return null;
+            }
+
+            _dbContext.Shifts.Remove(savedShift);
+            _dbContext.SaveChanges();
+
+            return $"Shift ID: {id} deleted";
+        }
     }
 }
