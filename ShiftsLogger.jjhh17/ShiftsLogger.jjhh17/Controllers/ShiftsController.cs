@@ -4,26 +4,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ShiftsLogger.jjhh17.Model;
 using ShiftsLogger.jjhh17.Services;
+using ShiftsLogger.jjhh17.Data;
 
-namespace ShiftsLogger.jjhh17
+namespace ShiftsLogger.jjhh17.Controllers
 {
     [ApiController]
-    [Route("api/shift")]
+    [Route("api/[controller]")]
     //example: http://localhost:5609/api/shift/
 
-    public class ShiftsController : ControllerBase
+    public class ShiftsController(IShiftService shiftService) : Controller
     {
-        private readonly IShiftService _shiftService;
-        public ShiftsController(IShiftService shiftService)
-        {
-            _shiftService = shiftService;
-        }
+        private readonly IShiftService _shiftService = shiftService; 
 
         [HttpGet]
-         public ActionResult<List<Shift>> GetAllShifts(int id)
+         public ActionResult<List<Shift>> GetAllShifts()
          {
-            return Ok(_shiftService.GetAllShifts(id));
+            return Ok(_shiftService.GetAllShifts());
          }
 
         [HttpGet("{id}")]
@@ -47,7 +45,7 @@ namespace ShiftsLogger.jjhh17
         [HttpDelete("{id}")]
         public ActionResult<string> DeleteShift(int id)
         {
-            return ok(_shiftService.DeleteShift(id));
+            return Ok(_shiftService.DeleteShift(id));
         }
     }
 }
