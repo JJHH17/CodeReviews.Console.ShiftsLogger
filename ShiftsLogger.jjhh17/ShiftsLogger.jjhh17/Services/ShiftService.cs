@@ -53,5 +53,19 @@ namespace ShiftsLogger.jjhh17.Services
             Shift savedShift = _dbContext.Shifts.Find(id);
             return savedShift;
         }
+
+        public Shift UpdateShift(int id, Shift shift)
+        {
+            Shift savedShift = _dbContext.Shifts.Find(id);
+            if (savedShift == null)
+          
+                return null;
+            }
+
+            _dbContext.Entry(savedShift).CurrentValues.SetValues(shift);
+            _dbContext.SaveChanges();
+
+            return savedShift;
+        }
     }
 }
