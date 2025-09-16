@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using ShiftsLogger.jjhh17;
 using ShiftsLogger.jjhh17.Data;
 using ShiftsLogger.jjhh17.Services;
+using ShiftsLogger.jjhh17.UserInterface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,5 +25,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+
+// This will run the console app concurrently with the web API
+Task.Run(() => UserInterface.ShowMenu());
 
 app.Run();
