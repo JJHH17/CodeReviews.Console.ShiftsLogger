@@ -45,7 +45,7 @@ namespace ShiftsLogger.jjhh17.Controllers
         [HttpPut("{id}")]
         public ActionResult<Shift> UpdateShift(int id, Shift updatedShift)
         {
-            var result = _shiftService.UpdateFlight(id, updatedShift);
+            var result = _shiftService.UpdateShift(id, updatedShift);
             if (result == null)
             {
                 return NotFound();
