@@ -30,18 +30,15 @@ namespace ShiftsLogger.jjhh17.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("ClockIn")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeSpan>("ClockIn")
+                        .HasColumnType("time");
 
-                    b.Property<DateTime>("ClockOut")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeSpan>("ClockOut")
+                        .HasColumnType("time");
 
                     b.Property<string>("Department")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Duration")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
