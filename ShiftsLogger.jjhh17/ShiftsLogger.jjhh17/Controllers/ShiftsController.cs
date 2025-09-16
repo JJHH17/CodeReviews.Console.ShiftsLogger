@@ -27,7 +27,13 @@ namespace ShiftsLogger.jjhh17.Controllers
         [HttpGet("{id}")]
         public ActionResult<Shift> GetShiftById(int id)
         {
-            return Ok(_shiftService.GetShiftById(id));
+            var result = _shiftService.GetShiftById(id);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
         }
 
         [HttpPost]
@@ -39,13 +45,25 @@ namespace ShiftsLogger.jjhh17.Controllers
         [HttpPut("{id}")]
         public ActionResult<Shift> UpdateShift(int id, Shift updatedShift)
         {
-            return Ok(_shiftService.UpdateShift(id, updatedShift));
+            var result = _shiftService.UpdateFlight(id, updatedShift);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public ActionResult<string> DeleteShift(int id)
         {
-            return Ok(_shiftService.DeleteShift(id));
+            var result = _shiftService.DeleteShift(id);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
         }
     }
 }
