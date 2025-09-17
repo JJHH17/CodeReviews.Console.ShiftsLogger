@@ -1,5 +1,8 @@
 ﻿using System;
 using Spectre.Console;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Net.Http.Json;
 
 namespace ShiftsLogger.jjhh17.UserInterface
 {
@@ -34,7 +37,7 @@ namespace ShiftsLogger.jjhh17.UserInterface
 
                     case MenuOptions.ViewAllShifts:
                         Console.Clear(); 
-                        Console.WriteLine("Feature coming soon...");
+                        PrintAllShifts();
                         Console.ReadKey();
                         break;
 
@@ -46,6 +49,48 @@ namespace ShiftsLogger.jjhh17.UserInterface
                         break;
                 }
             }
+        }
+
+        public async static void PrintAllShifts()
+        {
+            Console.Clear();
+            AnsiConsole.MarkupLine("[bold blue]Printing all shifts...[/]");
+
+            using HttpClient client = new HttpClient();
+
+            var table = new Table();
+            table.AddColumn("Id");
+            table.AddColumn("Name");
+            table.AddColumn("Clock In");
+            table.AddColumn("Clock Out");
+            table.AddColumn("Department");
+            table.AddColumn("Duration");
+
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync("http://localhost:5068/api/shifts");
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                foreach (var shift in System.Text.Json.JsonDocument.Parse(responseBody).RootElement.EnumerateArray())
+                {
+                    table.AddRow(
+                        shift.GetProperty("id").ToString(),
+                        shift.GetProperty("name").ToString(),
+                        shift.GetProperty("clockIn").ToString(),
+                        shift.GetProperty("clockOut").ToString(),
+                        shift.GetProperty("department").ToString(),
+                        shift.GetProperty("duration").ToString()
+                    );
+                }
+                AnsiConsole.Write(table);
+
+            }
+            catch (HttpRequestException e)
+            {
+                AnsiConsole.MarkupLine($"[red]Request error: {e.Message}[/]");
+            }
+
+            Console.WriteLine("Press any key to continue...");
         }
     }
 }
