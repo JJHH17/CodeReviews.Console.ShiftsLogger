@@ -3,6 +3,7 @@ using Spectre.Console;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Json;
+using ShiftsLogger.jjhh17.Model;
 
 namespace ShiftsLogger.jjhh17.UserInterface
 {
@@ -30,8 +31,8 @@ namespace ShiftsLogger.jjhh17.UserInterface
                 switch (choice)
                 {
                     case MenuOptions.CreateShift:
-                        Console.Clear(); 
-                        Console.WriteLine("Feature coming soon...");
+                        Console.Clear();
+                        AddNewShift();
                         Console.ReadKey();
                         break;
 
@@ -48,6 +49,74 @@ namespace ShiftsLogger.jjhh17.UserInterface
                         Console.ReadKey();
                         break;
                 }
+            }
+        }
+
+        public async static void AddNewShift()
+        {
+            Console.Clear();
+            AnsiConsole.MarkupLine("[bold blue]Add a new shift...[/]");
+
+            // Todo - add to seperate method for validation....
+            Console.WriteLine("Enter an employee name");
+            string name = Console.ReadLine();
+            TimeSpan clockIn;
+            while (true)
+            {
+                Console.WriteLine("Clock in time... (e.g. HH:mm:ss");
+                string input = Console.ReadLine();
+
+                if (TimeSpan.TryParse(input, out clockIn))
+                {
+                    break;
+                } else
+                {
+                    Console.WriteLine("Invalid time format detected. Enter any key to try again");
+                    Console.ReadKey();
+                }
+            }
+            TimeSpan clockOut;
+            while (true)
+            {
+                Console.WriteLine("Clock out time... (e.g. HH:mm:ss");
+                string input = Console.ReadLine();
+
+                if (TimeSpan.TryParse(input,out clockOut) && clockOut > clockIn)
+                {
+                    break;
+                }else
+                {
+                    Console.WriteLine("Invalid time format detected or clock out time is before clock in time. Enter any key to try again");
+                    Console.ReadKey();
+                }
+            }
+
+            Console.WriteLine("Enter a department");
+            string department = Console.ReadLine();
+
+            using HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri("http://localhost:5068/");
+
+            var newShift = new Shift
+            {
+                Name = name,
+                ClockIn = clockIn,
+                ClockOut = clockOut,
+                Department = department,
+            };
+
+            HttpResponseMessage response = await client.PostAsJsonAsync("api/shifts", newShift);
+
+            if (response.IsSuccessStatusCode) {
+                Console.WriteLine("Shift created successfully");
+                Console.WriteLine("Enter any key to continue...");
+            }
+            else
+            {
+                Console.WriteLine($"Error {response.StatusCode}");
+                string error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error details: {error}");
+                Console.WriteLine("Enter any key to continue...");
             }
         }
 
