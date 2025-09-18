@@ -4,15 +4,18 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Json;
 using ShiftsLogger.jjhh17.Model;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace ShiftsLogger.jjhh17.UserInterface
 {
-    public class UserInterface 
+    public class UserInterface
     {
         enum MenuOptions
         {
             CreateShift,
             ViewAllShifts,
+            ViewShift,
             Exit,
         }
 
@@ -37,8 +40,14 @@ namespace ShiftsLogger.jjhh17.UserInterface
                         break;
 
                     case MenuOptions.ViewAllShifts:
-                        Console.Clear(); 
+                        Console.Clear();
                         PrintAllShifts();
+                        Console.ReadKey();
+                        break;
+
+                    case MenuOptions.ViewShift:
+                        Console.Clear();
+                        PrintShift();
                         Console.ReadKey();
                         break;
 
@@ -69,7 +78,8 @@ namespace ShiftsLogger.jjhh17.UserInterface
                 if (TimeSpan.TryParse(input, out clockIn))
                 {
                     break;
-                } else
+                }
+                else
                 {
                     Console.WriteLine("Invalid time format detected. Enter any key to try again");
                     Console.ReadKey();
@@ -81,10 +91,11 @@ namespace ShiftsLogger.jjhh17.UserInterface
                 Console.WriteLine("Clock out time... (e.g. HH:mm:ss");
                 string input = Console.ReadLine();
 
-                if (TimeSpan.TryParse(input,out clockOut) && clockOut > clockIn)
+                if (TimeSpan.TryParse(input, out clockOut) && clockOut > clockIn)
                 {
                     break;
-                }else
+                }
+                else
                 {
                     Console.WriteLine("Invalid time format detected or clock out time is before clock in time. Enter any key to try again");
                     Console.ReadKey();
@@ -107,7 +118,8 @@ namespace ShiftsLogger.jjhh17.UserInterface
 
             HttpResponseMessage response = await client.PostAsJsonAsync("api/shifts", newShift);
 
-            if (response.IsSuccessStatusCode) {
+            if (response.IsSuccessStatusCode)
+            {
                 Console.WriteLine("Shift created successfully");
                 Console.WriteLine("Enter any key to continue...");
             }
@@ -160,6 +172,71 @@ namespace ShiftsLogger.jjhh17.UserInterface
             }
 
             Console.WriteLine("Press any key to continue...");
+        }
+
+        public async static void PrintShift()
+        {
+            Console.Clear();
+            AnsiConsole.MarkupLine("[bold blue]Print a given shift[/]");
+            int inputId;
+
+            while (true)
+            {
+                Console.WriteLine("Enter the ID of the shift you wish to view...");
+                string stringInput = Console.ReadLine();
+                if (int.TryParse(stringInput, out inputId))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid entry... Please try again");
+                }
+            }
+
+            using HttpClient client = new HttpClient();
+
+            var table = new Table();
+            table.AddColumn("Name");
+            table.AddColumn("Clock In");
+            table.AddColumn("Clock Out");
+            table.AddColumn("Department");
+            table.AddColumn("Duration");
+
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync($"http://localhost:5068/api/shifts/{inputId}");
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                Shift shift= JsonSerializer.Deserialize<Shift>(responseBody, options);
+
+                if (shift != null)
+                {
+                    table.AddRow(
+                        shift.Name,
+                        shift.ClockIn.ToString(),
+                        shift.ClockOut.ToString(),
+                        shift.Department,
+                        $"{shift.Duration} hrs");
+
+                    AnsiConsole.Write(table);
+                } else
+                {
+                    AnsiConsole.MarkupLine("[red]Failed to get shift data[/]");
+                }
+
+            }
+            catch (HttpRequestException e)
+            {
+                AnsiConsole.MarkupLine($"[red]Request error: {e.Message}[/]");
+            }
+
+            Console.WriteLine("Enter any key to continue...");
         }
     }
 }
