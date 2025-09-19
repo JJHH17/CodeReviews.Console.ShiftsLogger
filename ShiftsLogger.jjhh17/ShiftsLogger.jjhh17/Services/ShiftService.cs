@@ -39,6 +39,7 @@ namespace ShiftsLogger.jjhh17.Services
             }
 
             Context.Shifts.Remove(savedShift);
+            Context.SaveChanges();
 
             return $"Shift ID: {id} deleted";
         }
