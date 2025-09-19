@@ -6,6 +6,9 @@ using System.Net.Http.Json;
 using ShiftsLogger.jjhh17.Model;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using ShiftsLogger.jjhh17.Services;
+using Microsoft.EntityFrameworkCore;
+using ShiftsLogger.jjhh17.Data;
 
 namespace ShiftsLogger.jjhh17.UserInterface
 {
@@ -16,10 +19,11 @@ namespace ShiftsLogger.jjhh17.UserInterface
             CreateShift,
             ViewAllShifts,
             ViewShift,
+            DeleteShift,
             Exit,
         }
 
-        public static void ShowMenu()
+        public static async Task ShowMenu()
         {
             bool running = true;
 
@@ -48,6 +52,12 @@ namespace ShiftsLogger.jjhh17.UserInterface
                     case MenuOptions.ViewShift:
                         Console.Clear();
                         PrintShift();
+                        Console.ReadKey();
+                        break;
+
+                    case MenuOptions.DeleteShift:
+                        Console.Clear();
+                        DeleteShift();
                         Console.ReadKey();
                         break;
 
@@ -237,6 +247,46 @@ namespace ShiftsLogger.jjhh17.UserInterface
             }
 
             Console.WriteLine("Enter any key to continue...");
+        }
+
+        public static async Task DeleteShift()
+        {
+            Console.Clear();
+            AnsiConsole.MarkupLine("[bold blue]Delete a shift[/]");
+            int inputId;
+
+            while (true)
+            {
+                Console.WriteLine("Enter the ID of the shift you wish to view...");
+                string stringInput = Console.ReadLine();
+                if (int.TryParse(stringInput, out inputId))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid entry... Please try again");
+                }
+            }
+
+            //TODO -Delete entries based on ID...
+            HttpClient client = new HttpClient();
+            try
+            {
+                HttpResponseMessage response = await client.DeleteAsync($"http://localhost:5068/api/shifts/{inputId}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Shift ID: {inputId} deleted successfully");
+                } else
+                {
+                    Console.WriteLine($"Shift with ID {inputId} not found");
+                }
+
+            } catch (HttpRequestException e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+            }
         }
     }
 }
