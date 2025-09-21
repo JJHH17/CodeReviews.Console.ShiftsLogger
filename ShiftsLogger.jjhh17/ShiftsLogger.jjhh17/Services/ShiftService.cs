@@ -63,7 +63,10 @@ namespace ShiftsLogger.jjhh17.Services
                 return null;
             }
 
-            Context.Entry(savedShift).CurrentValues.SetValues(shift);
+            savedShift.Name = shift.Name;
+            savedShift.ClockIn = shift.ClockIn;
+            savedShift.ClockOut = shift.ClockOut;
+            savedShift.Department = shift.Department;
             Context.SaveChanges();
 
             return savedShift;
