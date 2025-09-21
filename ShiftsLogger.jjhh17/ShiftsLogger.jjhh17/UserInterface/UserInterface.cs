@@ -377,7 +377,7 @@ namespace ShiftsLogger.jjhh17.UserInterface
             TimeSpan clockIn;
             while (true)
             {
-                Console.WriteLine("Clock in time... (e.g. HH:mm:ss");
+                Console.WriteLine("Clock in time... (e.g. HH:mm:ss)");
                 string input = Console.ReadLine();
 
                 if (TimeSpan.TryParse(input, out clockIn))
@@ -394,7 +394,7 @@ namespace ShiftsLogger.jjhh17.UserInterface
             TimeSpan clockOut;
             while (true)
             {
-                Console.WriteLine("Clock out time... (e.g. HH:mm:ss");
+                Console.WriteLine("Clock out time... (e.g. HH:mm:ss)");
                 string input = Console.ReadLine();
 
                 if (TimeSpan.TryParse(input, out clockOut) && clockOut > clockIn)
