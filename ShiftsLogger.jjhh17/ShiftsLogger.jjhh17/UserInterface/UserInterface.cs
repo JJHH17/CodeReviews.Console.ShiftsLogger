@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Spectre.Console;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace ShiftsLogger.jjhh17.UserInterface
             ViewAllShifts,
             ViewShift,
             DeleteShift,
+            EditShift,
             Exit,
         }
 
@@ -58,6 +60,12 @@ namespace ShiftsLogger.jjhh17.UserInterface
                     case MenuOptions.DeleteShift:
                         Console.Clear();
                         DeleteShift();
+                        Console.ReadKey();
+                        break;
+
+                    case MenuOptions.EditShift:
+                        Console.Clear();
+                        EditShift();
                         Console.ReadKey();
                         break;
 
@@ -223,7 +231,7 @@ namespace ShiftsLogger.jjhh17.UserInterface
                     PropertyNameCaseInsensitive = true
                 };
 
-                Shift shift= JsonSerializer.Deserialize<Shift>(responseBody, options);
+                Shift shift = JsonSerializer.Deserialize<Shift>(responseBody, options);
 
                 if (shift != null)
                 {
@@ -269,7 +277,6 @@ namespace ShiftsLogger.jjhh17.UserInterface
                 }
             }
 
-            //TODO -Delete entries based on ID...
             HttpClient client = new HttpClient();
             try
             {
@@ -288,5 +295,119 @@ namespace ShiftsLogger.jjhh17.UserInterface
                 Console.WriteLine($"Error: {e.Message}");
             }
         }
+
+        public static async Task EditShift()
+        {
+            Console.Clear();
+            AnsiConsole.MarkupLine("[bold blue]Edit a shift[/]");
+
+            int inputId;
+            while (true)
+            {
+                Console.WriteLine("Enter the ID of the shift you wish to edit...");
+                string stringInput = Console.ReadLine();
+                if (int.TryParse(stringInput, out inputId))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid entry... Please try again...");
+                }
+            }
+
+            using HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri("http://localhost:5068/");
+
+            HttpResponseMessage getResponse = await client.GetAsync($"api/shifts/{inputId}");
+            if (!getResponse.IsSuccessStatusCode)
+            {
+                AnsiConsole.MarkupLine($"[red]Shift ID {inputId} not found[/]");
+                return;
+            }
+
+            var existingShiftJson = await getResponse.Content.ReadAsStringAsync();
+            var existingShift = JsonSerializer.Deserialize<Shift>(existingShiftJson, new JsonSerializerOptions());
+
+            if (existingShift == null)
+            {
+                AnsiConsole.MarkupLine("[red]Failed to parse shift data[/]");
+                return;
+            }
+
+            Console.WriteLine($"Editing Shift ID: {inputId}");
+
+            Console.WriteLine("Enter a new employee name (or leave blank to keep current):");
+            string name = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                existingShift.Name = name;
+            }
+
+            TimeSpan clockIn;
+            while (true)
+            {
+                Console.WriteLine($"Clock in time (current: {existingShift.ClockIn}) (format: HH:mm:ss or leave blank to keep current):");
+                string input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    clockIn = existingShift.ClockIn;
+                    break;
+                }
+                if (TimeSpan.TryParse(input, out clockIn))
+                {
+                    existingShift.ClockIn = clockIn;
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid time format. Try again...");
+                }
+            }
+
+            TimeSpan clockOut;
+            while (true)
+            {
+                Console.WriteLine($"Clock out time (current: {existingShift.ClockOut}) (format: HH:mm:ss or leave blank to keep current):");
+                string input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    clockOut = existingShift.ClockOut;
+                    break;
+                }
+                if (TimeSpan.TryParse(input, out clockOut) && clockOut > clockIn)
+                {
+                    existingShift.ClockOut = clockOut;
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid time or clock-out is before clock-in. Try again...");
+                }
+            }
+
+            Console.WriteLine("Enter a new department (or leave blank to keep current):");
+            string department = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(department))
+            {
+                existingShift.Department = department;
+            }
+
+            var updatedShiftJson = JsonSerializer.Serialize(existingShift);
+            var content = new StringContent(updatedShiftJson, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage putResponse = await client.PutAsync($"api/shifts/{inputId}", content);
+            if (putResponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Shift updated successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Failed to update shift. Status Code: " + putResponse.StatusCode);
+                string errorContent = await putResponse.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error details: {errorContent}");
+            }
+        }
     }
 }
+
