@@ -84,7 +84,6 @@ namespace ShiftsLogger.jjhh17.UserInterface
             Console.Clear();
             AnsiConsole.MarkupLine("[bold blue]Add a new shift...[/]");
 
-            // Todo - add to seperate method for validation....
             Console.WriteLine("Enter an employee name");
             string name = Console.ReadLine();
             TimeSpan clockIn;
@@ -152,43 +151,7 @@ namespace ShiftsLogger.jjhh17.UserInterface
 
         public async static void PrintAllShifts()
         {
-            Console.Clear();
-            AnsiConsole.MarkupLine("[bold blue]Printing all shifts...[/]");
-
-            using HttpClient client = new HttpClient();
-
-            var table = new Table();
-            table.AddColumn("Id");
-            table.AddColumn("Name");
-            table.AddColumn("Clock In");
-            table.AddColumn("Clock Out");
-            table.AddColumn("Department");
-            table.AddColumn("Duration");
-
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync("http://localhost:5068/api/shifts");
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-                foreach (var shift in System.Text.Json.JsonDocument.Parse(responseBody).RootElement.EnumerateArray())
-                {
-                    table.AddRow(
-                        shift.GetProperty("id").ToString(),
-                        shift.GetProperty("name").ToString(),
-                        shift.GetProperty("clockIn").ToString(),
-                        shift.GetProperty("clockOut").ToString(),
-                        shift.GetProperty("department").ToString(),
-                        shift.GetProperty("duration").ToString()
-                    );
-                }
-                AnsiConsole.Write(table);
-
-            }
-            catch (HttpRequestException e)
-            {
-                AnsiConsole.MarkupLine($"[red]Request error: {e.Message}[/]");
-            }
-
+            ViewAllShifts();
             Console.WriteLine("Press any key to continue...");
         }
 
@@ -260,6 +223,7 @@ namespace ShiftsLogger.jjhh17.UserInterface
         public static async Task DeleteShift()
         {
             Console.Clear();
+            ViewAllShifts();
             AnsiConsole.MarkupLine("[bold blue]Delete a shift[/]");
             int inputId;
 
@@ -300,6 +264,7 @@ namespace ShiftsLogger.jjhh17.UserInterface
         {
             Console.Clear();
             AnsiConsole.MarkupLine("[bold blue]Edit a shift[/]");
+            ViewAllShifts();
 
             int inputId;
             while (true)
@@ -406,6 +371,46 @@ namespace ShiftsLogger.jjhh17.UserInterface
                 Console.WriteLine("Failed to update shift. Status Code: " + putResponse.StatusCode);
                 string errorContent = await putResponse.Content.ReadAsStringAsync();
                 Console.WriteLine($"Error details: {errorContent}");
+            }
+        }
+
+        public async static void ViewAllShifts()
+        {
+            Console.Clear();
+            AnsiConsole.MarkupLine("[bold blue]Printing all shifts...[/]");
+
+            using HttpClient client = new HttpClient();
+
+            var table = new Table();
+            table.AddColumn("Id");
+            table.AddColumn("Name");
+            table.AddColumn("Clock In");
+            table.AddColumn("Clock Out");
+            table.AddColumn("Department");
+            table.AddColumn("Duration");
+
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync("http://localhost:5068/api/shifts");
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                foreach (var shift in System.Text.Json.JsonDocument.Parse(responseBody).RootElement.EnumerateArray())
+                {
+                    table.AddRow(
+                        shift.GetProperty("id").ToString(),
+                        shift.GetProperty("name").ToString(),
+                        shift.GetProperty("clockIn").ToString(),
+                        shift.GetProperty("clockOut").ToString(),
+                        shift.GetProperty("department").ToString(),
+                        shift.GetProperty("duration").ToString()
+                    );
+                }
+                AnsiConsole.Write(table);
+
+            }
+            catch (HttpRequestException e)
+            {
+                AnsiConsole.MarkupLine($"[red]Request error: {e.Message}[/]");
             }
         }
     }
