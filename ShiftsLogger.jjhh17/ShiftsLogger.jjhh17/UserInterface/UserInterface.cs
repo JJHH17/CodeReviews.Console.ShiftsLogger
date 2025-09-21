@@ -82,56 +82,11 @@ namespace ShiftsLogger.jjhh17.UserInterface
         public async static void AddNewShift()
         {
             Console.Clear();
-            AnsiConsole.MarkupLine("[bold blue]Add a new shift...[/]");
-
-            Console.WriteLine("Enter an employee name");
-            string name = Console.ReadLine();
-            TimeSpan clockIn;
-            while (true)
-            {
-                Console.WriteLine("Clock in time... (e.g. HH:mm:ss");
-                string input = Console.ReadLine();
-
-                if (TimeSpan.TryParse(input, out clockIn))
-                {
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid time format detected. Enter any key to try again");
-                    Console.ReadKey();
-                }
-            }
-            TimeSpan clockOut;
-            while (true)
-            {
-                Console.WriteLine("Clock out time... (e.g. HH:mm:ss");
-                string input = Console.ReadLine();
-
-                if (TimeSpan.TryParse(input, out clockOut) && clockOut > clockIn)
-                {
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid time format detected or clock out time is before clock in time. Enter any key to try again");
-                    Console.ReadKey();
-                }
-            }
-
-            Console.WriteLine("Enter a department");
-            string department = Console.ReadLine();
 
             using HttpClient client = new HttpClient();
             client.BaseAddress = new Uri("http://localhost:5068/");
 
-            var newShift = new Shift
-            {
-                Name = name,
-                ClockIn = clockIn,
-                ClockOut = clockOut,
-                Department = department,
-            };
+            var newShift = EnterShift();
 
             HttpResponseMessage response = await client.PostAsJsonAsync("api/shifts", newShift);
 
@@ -412,6 +367,57 @@ namespace ShiftsLogger.jjhh17.UserInterface
             {
                 AnsiConsole.MarkupLine($"[red]Request error: {e.Message}[/]");
             }
+        }
+
+        public static Shift EnterShift()
+        {
+            Console.Clear();
+            Console.WriteLine("Enter a name:");
+            string name = Console.ReadLine();
+            TimeSpan clockIn;
+            while (true)
+            {
+                Console.WriteLine("Clock in time... (e.g. HH:mm:ss");
+                string input = Console.ReadLine();
+
+                if (TimeSpan.TryParse(input, out clockIn))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid time format detected. Enter any key to try again");
+                    Console.ReadKey();
+                }
+            }
+
+            TimeSpan clockOut;
+            while (true)
+            {
+                Console.WriteLine("Clock out time... (e.g. HH:mm:ss");
+                string input = Console.ReadLine();
+
+                if (TimeSpan.TryParse(input, out clockOut) && clockOut > clockIn)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid time format detected or clock out time is before clock in time. Enter any key to try again");
+                    Console.ReadKey();
+                }
+            }
+
+            Console.WriteLine("Enter a department");
+            string department = Console.ReadLine();
+            var newShift = new Shift
+            {
+                Name = name,
+                ClockIn = clockIn,
+                ClockOut = clockOut,
+                Department = department
+            };
+            return newShift;
         }
     }
 }
